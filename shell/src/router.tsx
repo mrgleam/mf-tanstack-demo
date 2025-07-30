@@ -4,9 +4,16 @@ import {
   createRoute,
   createRouter,
   Outlet,
-  lazyRouteComponent,
 } from '@tanstack/react-router'
 import NavBar from './NavBar'
+
+// Utility function to replace parent route
+const replaceParentRoute = (routes: any[], newParent: any) => {
+  return routes?.map(route => {
+    route.getParentRoute = () => newParent;
+    return route
+  });
+};
 
 const root = createRootRoute({
   component: () => (
@@ -39,9 +46,9 @@ const indexRoute = createRoute({
 
 const shopRoutes = await import('shop/ShopRoutes');
 
-shopRoutes.default.routes[0].options.getParentRoute = () => root;
-shopRoutes.default.routes[1].options.getParentRoute = () => root;
+// Replace parent routes using the utility function
+const updatedShopRoutes = replaceParentRoute(shopRoutes.default.routes, root);
 
 export const router = createRouter({
-  routeTree: root.addChildren([indexRoute, ...shopRoutes.default.routes]),
+  routeTree: root.addChildren([indexRoute, ...updatedShopRoutes]),
 })

@@ -1,4 +1,4 @@
 declare module 'shop/ShopRoutes' {
-  const component: any;
-  export default component;
-} 
+  const routes: any[];
+  export { routes };
+}
