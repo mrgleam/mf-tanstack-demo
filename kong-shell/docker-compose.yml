@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  kong:
+    image: kong:3.9.1
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: "/kong/kong.yml"
+    volumes:
+      - ./kong.yml:/kong/kong.yml

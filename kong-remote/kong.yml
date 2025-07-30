@@ -1,0 +1,13 @@
+_format_version: "2.1"
+services:
+  - name: shell
+    url: http://host.docker.internal:3000
+    routes:
+      - name: shell-route
+        paths: ["/"]
+  - name: shop
+    url: http://host.docker.internal:3001
+    routes:
+      - name: shop-route
+        paths: ["/shop"]
+        strip_path: false
