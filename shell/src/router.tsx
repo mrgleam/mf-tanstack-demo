@@ -3,7 +3,6 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
-  RouterProvider,
   Outlet,
   lazyRouteComponent,
 } from '@tanstack/react-router'
@@ -37,27 +36,6 @@ const indexRoute = createRoute({
     </div>
   ),
 })
-
-const shopRoute = createRoute({
-  getParentRoute: () => root,
-  path: 'shop/*',
-  component: lazyRouteComponent(() =>
-    import('shop/ShopRoutes').then(m => {
-      // Create a simple component that shows shop is loaded
-      return () => (
-        <div>
-          <h2>🛍️ Shop Module Loaded</h2>
-          <p>Shop routes loaded successfully!</p>
-          <div>
-            <a href="/shop">Shop Home</a> | 
-            <a href="/shop/name-test">Test Product</a>
-          </div>
-        </div>
-      )
-    })
-  ),
-})
-
 
 const shopRoutes = await import('shop/ShopRoutes');
 
