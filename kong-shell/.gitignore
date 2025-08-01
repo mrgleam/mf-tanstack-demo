@@ -1,0 +1,14 @@
+# Kong SSL Certificates
+certs
+certs/*.pem
+certs/*.key
+certs/*.crt
+
+# Keep README
+!certs/README.md
+
+# Docker
+.dockerignore
+
+# Logs
+*.log 

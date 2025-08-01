@@ -3,10 +3,15 @@ services:
   kong:
     image: kong:3.9.1
     ports:
-      - "8000:8000"
-      - "8001:8001"
+      - "8080:8000"      # HTTP
+      - "443:8443"      # HTTPS
+      - "8081:8001"      # Admin API
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: "/kong/kong.yml"
+      KONG_SSL: "on"
+      KONG_SSL_CERT: "/kong/certs/cert.pem"
+      KONG_SSL_CERT_KEY: "/kong/certs/key.pem"
     volumes:
       - ./kong.yml:/kong/kong.yml
+      - ./certs:/kong/certs

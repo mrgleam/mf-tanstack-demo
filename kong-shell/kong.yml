@@ -1,7 +1,9 @@
 _format_version: "2.1"
+
 services:
   - name: shell
     url: http://host.docker.internal:3000
     routes:
       - name: shell-route
         paths: ["/"]
+        protocols: ["http", "https"]
