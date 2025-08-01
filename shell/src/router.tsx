@@ -6,6 +6,7 @@ import {
   Outlet,
 } from '@tanstack/react-router'
 import NavBar from './NavBar'
+import { moduleLoader, MODULE_CONFIGS } from './moduleLoader'
 
 // Utility function to replace parent route
 const replaceParentRoute = (routes: any[], newParent: any) => {
@@ -44,11 +45,72 @@ const indexRoute = createRoute({
   ),
 })
 
-const shopRoutes = await import('shop/ShopRoutes');
+// Enhanced Module Federation loader with caching and retry logic
+const loadFederatedModules = async () => {
+  try {
+    // Load all modules using the module loader
+    const moduleResults = await moduleLoader.loadModules([
+      MODULE_CONFIGS.shop,
+      // Add more modules as needed:
+      // MODULE_CONFIGS.admin,
+      // MODULE_CONFIGS.dashboard,
+    ]);
 
-// Replace parent routes using the utility function
-const updatedShopRoutes = replaceParentRoute(shopRoutes.default.routes, root);
+    const modules: any = {};
+    
+    moduleResults.forEach(result => {
+      if (result.success && result.module) {
+        const moduleName = result.name.split('/')[0]; // Extract 'shop' from 'shop/ShopRoutes'
+        modules[`${moduleName}Routes`] = result.module.default.routes;
+      } else {
+        console.error(`Module ${result.name} failed to load:`, result.error);
+        const moduleName = result.name.split('/')[0];
+        modules[`${moduleName}Routes`] = [];
+      }
+    });
 
-export const router = createRouter({
-  routeTree: root.addChildren([indexRoute, ...updatedShopRoutes]),
-})
+    return modules;
+  } catch (error) {
+    console.error('Failed to load federated modules:', error);
+    return {
+      shopRoutes: [],
+      // adminRoutes: [],
+      // dashboardRoutes: [],
+    };
+  }
+};
+
+// Load modules and create router with enhanced error handling
+const createRouterWithFederatedModules = async () => {
+  console.log('🚀 Loading federated modules...');
+  
+  const modules = await loadFederatedModules();
+  
+  console.log('📦 Loaded modules:', Object.keys(modules));
+  
+  // Replace parent routes for all modules
+  const updatedShopRoutes = replaceParentRoute(modules.shopRoutes, root);
+  // const updatedAdminRoutes = replaceParentRoute(modules.adminRoutes, root);
+  // const updatedDashboardRoutes = replaceParentRoute(modules.dashboardRoutes, root);
+
+  const router = createRouter({
+    routeTree: root.addChildren([
+      indexRoute,
+      ...updatedShopRoutes,
+      // ...updatedAdminRoutes,
+      // ...updatedDashboardRoutes,
+    ]),
+  });
+
+  console.log('✅ Router created successfully');
+  return router;
+};
+
+// Export the router creation function
+export const createRouterAsync = createRouterWithFederatedModules;
+
+// Export cache management functions
+export const clearModuleCache = (moduleName?: string) => moduleLoader.clearCache(moduleName);
+export const getModuleCacheStatus = () => moduleLoader.getCacheStatus();
+
+export const router = await createRouterAsync();
